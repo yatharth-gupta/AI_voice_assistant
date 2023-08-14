@@ -1,101 +1,55 @@
-import asyncio, json
-from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
-from EdgeGPT.EdgeUtils import Query,Cookie
-import whisper
+from EdgeGPT.EdgeUtils import Query,Cookie # Importing the Query class from EdgeUtils
+import whisper # speech to text
 import time
-# from TTS.api import TTS
-from playsound import playsound
-import pydub
-from pydub import playback
-import re
+import pydub # for playing the audio
+from pydub import playback # for playing the audio
+import re # for removing unwanted characters
 import os
-from gtts import gTTS
-import sounddevice as sd
-import soundfile as sf
+from gtts import gTTS # for text to speech
+import sounddevice as sd # for recording audio
+import soundfile as sf # for saving audio
+
+
+# from TTS.api import TTS
 # model_name = "tts_models/en/ljspeech/fast_pitch"
 # model_name = TTS.list_models()[0]
 # tts = TTS(model_name, progress_bar=False, gpu=False)
-fs =44100
-sec = 7
-# async def main():
-    # model = whisper.load_model("base")
 
-    # # load audio and pad/trim it to fit 30 seconds
-    # audio = whisper.load_audio("recorded_audio.wav")
-    # # audio = whisper.load_audio("input.wav")
-    # audio = whisper.pad_or_trim(audio)
-
-    # # make log-Mel spectrogram and move to the same device as the model
-    # mel = whisper.log_mel_spectrogram(audio).to(model.device)
-
-    # # detect the spoken language
-    # _, probs = model.detect_language(mel)
-    # print(f"Detected language: {max(probs, key=probs.get)}")
-
-    # # decode the audio
-    # options = whisper.DecodingOptions(fp16=False)
-    # result = whisper.decode(model, mel, options)
-
-    # # print the recognized text
-    # print(result.text)
-    # time.sleep(1)
-
-#     cookies = json.loads(open("./bing_cookies_*.json", encoding="utf-8").read())  # might omit cookies option
-#     bot = await Chatbot.create(cookies=cookies)
-#     response = await bot.ask(prompt=result.text, conversation_style=ConversationStyle.precise)
-#     print(response["item"]["messages"])
-#     # for message in response["item"]["messages"]:
-#     #     if message["author"] == "bot":
-#     #         bot_response = message["text"]
-#     # # Remove [^#^] citations in response
-#     # bot_response = re.sub('\[\^\d+\^\]', '', bot_response)
-
-    # tts.tts_to_file(text="hello world",speed="1.2", file_path="output.wav")
-    # time.sleep(1)
-    # sound = pydub.AudioSegment.from_file("output.wav", format="wav")
-    # playback.play(sound)
-#     await bot.close()
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
+fs =44100 # Sample rate
+sec = 7 # Duration of recording
 
 print("start recording")
 file_path = "recorded_audio.wav"
 absolute_path = os.path.abspath(file_path)
-open(absolute_path, 'w').close()
-myrecording  = sd.rec(int(sec*fs),samplerate = fs,channels = 2)
-sd.wait()
-# Save the recorded audio to a file
-sf.write(file_path, myrecording, fs)
+open(absolute_path, 'w').close() # clearing the file , w is for write mode
+myrecording  = sd.rec(int(sec*fs),samplerate = fs,channels = 2) # recording audio
+sd.wait() # Wait until recording is finished
+sf.write(file_path, myrecording, fs) # Save the recorded audio to a file
 print("stop recording")
 time.sleep(1)
 
 model = whisper.load_model("base")
 
-# load audio and pad/trim it to fit 30 seconds
+# load audio 
 audio = whisper.load_audio(absolute_path)
-# audio = whisper.load_audio("input.wav")
-audio = whisper.pad_or_trim(audio)
 
 # make log-Mel spectrogram and move to the same device as the model
 mel = whisper.log_mel_spectrogram(audio).to(model.device)
 
 # detect the spoken language
-_, probs = model.detect_language(mel)
-print(f"Detected language: {max(probs, key=probs.get)}")
+_, probs = model.detect_language(mel) # probs is a dictionary of probabilities w.r.t each language
+print(f"Detected language: {max(probs, key=probs.get)}") # printing the language with max probability
 
 # decode the audio
-options = whisper.DecodingOptions(fp16=False)
-result = whisper.decode(model, mel, options)
+options = whisper.DecodingOptions(fp16=False) # fp16 is for 16 bit floating point precision
+result = whisper.decode(model, mel, options) # result is a class object, it has a text attribute which contains the recognized text
 
 # print the recognized text
 print(result.text)
 
-# optional to add cookies to the query
-# Cookie.dir_path =os.path.join(os.getcwd(),"bing_cookies_*.json")
-
 # querying Bing AI
 q = Query(result.text)
+
 # removing extra unwanted characters
 q = str(q)
 q = re.sub(r'\[\^\d+\^\]', '', q)
@@ -103,6 +57,7 @@ q = q.replace("**","")
 print(q)
 
 # can also use Coqui-TTS for text to speech
+
 # tts.tts_to_file(text="hello world",speed="1.2", file_path="output.wav")
 # time.sleep(1)
 # sound = pydub.AudioSegment.from_file("output.wav", format="wav")
