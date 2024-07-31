@@ -1,12 +1,12 @@
 # AI_voice_assistant
-Install all the module imported.
+Install all the modules.
 
 Run python3 main.py
 
-Ask your question once "start recording" is displayed, as of now only 7 sec long input is supported.
+Say "Jarvis" to activate the assistant.
 
-Wait for around a 30sec for the assistant to respond.
+Ask your question once "recording..." is displayed, as of now only 5 sec long input is supported.
 
-As the API is reverse-engineered, it might fail some of the times
+Wait for around a 5-10sec for the assistant to respond.
 
-Error might be (Auth error/api limit etc). Running it again should fix 
+The assistant will respond to your query by speaking out the answer.

@@ -1,0 +1,9 @@
+SpeechRecognition
+python-dotenv
+groq
+sounddevice
+langchain-groq
+streamlit
+langchain
+openai
+playsound
